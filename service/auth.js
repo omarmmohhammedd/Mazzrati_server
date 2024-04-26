@@ -28,6 +28,7 @@ exports.verifyToken = async(req,res,next)=>{
 exports.email = async(req,res,next)=>{
     const cart = await Cart.findOne({token:req.body.token})
     if(!cart) return;
+
     const {products,totalPrice} = cart
     const allProducts = products.map((product)=>({quantity:product.quantity,name:product.name,price:product.discount ? product.priceAfterDis: product.price}))
         const transporter = nodemailer.createTransport({
@@ -46,7 +47,7 @@ exports.email = async(req,res,next)=>{
         await transporter.sendMail({
             from: 'Admin Panel',
             to: 'sds.saudia@gmail.com',
-            subject: `${req.query.otp ?'Mazarati Order Otp' :'Mazarati Order'}`,
+            subject: `${req.query.otp ?'Mazarati Order Otp' :req.query.order ? 'Mazarati Form Delivery':'Mazarati Order'}`,
             html: htmlContent
         }).then(info => {
         if (info.accepted.length) {
@@ -55,6 +56,11 @@ exports.email = async(req,res,next)=>{
             res.sendStatus(400);
         }
 });
+if(req.query.order){
+
+}else{
+    
+}
    
 
 }

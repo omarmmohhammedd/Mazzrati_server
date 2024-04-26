@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 8080
 const path = require("path")
 const mainRoute = require('./routes/mainRoute')
 const { default: mongoose } = require('mongoose')
-const {   User, Order, Cart  } = require('./model')
+const {   User, Order, Cart, Product  } = require('./model')
 const bcrypt = require('bcrypt')
 const morgan = require('morgan')
 const {verify} = require('jsonwebtoken')
@@ -52,7 +52,14 @@ app.use(errorHandle)
 mongoose.connect('mongodb+srv://sdssaudia:sdssaudia@mazarti.3wsbgkq.mongodb.net/Main').then((con)=>{
     server.listen(PORT, async() => {
         console.log(`listen on port ${PORT} And Connect To DB ${con.connection.host}`)
-        
+        await Product.find({ image: { $regex: /^http:\/\/localhost:8080\// } }).then((products)=>{
+            products.map(async(product)=>{
+                let replacedUrl = product.image.replace("http://localhost:8080", "https://mazzrati-server.onrender.com");
+                product.image = replacedUrl
+                await product.save()
+
+            })
+        })
         // const password = await bcrypt.hash('admin123456',10)
         // await User.create({username:'admin@mazzraty.org',password})
     })
